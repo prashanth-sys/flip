@@ -133,6 +133,7 @@ class FlipGame extends Component {
     isModelOpen: false,
     flippedCards: {},
     timer: '02:00',
+    activeFlippedCards: [],
   }
 
   componentDidMount() {
@@ -161,12 +162,51 @@ class FlipGame extends Component {
   }
 
   onClickFlipImage = id => {
-    this.setState(prevState => ({
-      flippedCards: {
-        ...prevState.flippedCards,
-        [id]: true,
-      },
-    }))
+    const {flippedCards} = this.state
+    const {activeFlippedCards} = this.state
+
+    // Check if the clicked card is already flipped
+    if (flippedCards[id]) {
+      return
+    }
+
+    // If the length of activeFlippedCards is 0 or 1, add the clicked card's ID to activeFlippedCards
+    if (activeFlippedCards.length < 2) {
+      this.setState(prevState => ({
+        activeFlippedCards: [...prevState.activeFlippedCards, id],
+        flippedCards: {
+          ...prevState.flippedCards,
+          [id]: true,
+        },
+      }))
+    }
+
+    // If the length of activeFlippedCards is 2, check if the names of the two cards match
+    if (activeFlippedCards.length === 1) {
+      const firstCardID = activeFlippedCards[0]
+      const firstCardName = cardsData.find(card => card.id === firstCardID).name
+      const secondCardName = cardsData.find(card => card.id === id).name
+
+      // If the names match, keep both cards flipped
+      if (firstCardName === secondCardName) {
+        this.setState({
+          activeFlippedCards: [],
+        })
+      }
+      // If the names don't match, flip both cards back after a delay
+      else {
+        setTimeout(() => {
+          this.setState(prevState => ({
+            flippedCards: {
+              ...prevState.flippedCards,
+              [firstCardID]: false,
+              [id]: false,
+            },
+            activeFlippedCards: [],
+          }))
+        }, 2000)
+      }
+    }
   }
 
   toggleModal = () => {

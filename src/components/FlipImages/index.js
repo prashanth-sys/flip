@@ -5,7 +5,7 @@ const FlipImages = props => {
   const {image, name, id} = list
 
   const onClickImage = () => {
-    onClickFlipImage(id)
+    onClickFlipImage(id, name)
   }
 
   return (
